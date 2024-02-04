@@ -45,13 +45,11 @@ void IRAM_ATTR onTimer() {
 }
 
 void setup() {
-  Serial.begin(115200);
   WiFi.begin(ssid, password);  
   mtrx.begin();
   int y0 = 15;
   int y1 = 16;
   while (!WiFi.isConnected()) {
-    //mtrx.dot(i, 7);
     mtrx.fastLineH(3, y0, y1);
     mtrx.fastLineH(4, y0, y1);
     mtrx.update();
@@ -81,7 +79,6 @@ void loop() {
   sensorValue = adcFilter.filtered(sensorValue); 
   if (onChange) {    
     int bright = sensorValue / 273; // 4096/15=273 (12bit/0..15)
-    Serial.println(bright);
     mtrx.setBright(bright);
     display();
     onChange = false;
