@@ -48,17 +48,22 @@ void setup() {
   Serial.begin(115200);
   WiFi.begin(ssid, password);  
   mtrx.begin();
-  int i = 0;
+  int y0 = 15;
+  int y1 = 16;
   while (!WiFi.isConnected()) {
-    mtrx.dot(i, 7);
+    //mtrx.dot(i, 7);
+    mtrx.fastLineH(3, y0, y1);
+    mtrx.fastLineH(4, y0, y1);
     mtrx.update();
-    mtrx.clear();
-    i++;
-    if (i > 31) {
-      i = 0;
+    y0--;
+    y1++;
+    if (y0 < 0) {
+      y0 = 15;
+      y1 = 16;
     }
     delay(50);
   }
+  displayText("Wi-Fi");
 
   Clock_timer = timerBegin(0, 80, true);
   timerAttachInterrupt(Clock_timer, &onTimer, true);
@@ -66,6 +71,7 @@ void setup() {
   timerAlarmEnable(Clock_timer);
 
   if (!timeUpdate()) {
+    displayText("Error");
     ESP.restart();
   }
 }
@@ -89,21 +95,28 @@ void loop() {
   }
 }
 
+void displayText(String s) {
+  mtrx.clear();
+  mtrx.setCursor(2, 0);
+  mtrx.print(s);
+  mtrx.update();
+}
+
 void display() {
   mtrx.clear();
-  mtrx.setCursor(3, 0);
+  mtrx.setCursor(2, 0);
   if (hours < 10) {
     mtrx.print(" ");
   }
   mtrx.print(hours);
-  mtrx.setCursor(19, 0);
+  mtrx.setCursor(18, 0);
   if (minutes < 10) {
     mtrx.print(0);
   }
   mtrx.print(minutes);
   if (sec % 2 > 0) {
-    mtrx.dot(16, 1);
-    mtrx.dot(16, 5);
+    mtrx.dot(15, 1);
+    mtrx.dot(15, 5);
   }
   mtrx.update();  // показать
 }
@@ -127,4 +140,3 @@ bool timeUpdate() {
   WiFi.disconnect();
   return result;
 }
-
