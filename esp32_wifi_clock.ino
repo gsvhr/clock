@@ -50,7 +50,7 @@ void setup() {
   mtrx.begin();
   int i = 0;
   while (!WiFi.isConnected()) {
-    mtrx.dot(i, 0);
+    mtrx.dot(i, 7);
     mtrx.update();
     mtrx.clear();
     i++;
