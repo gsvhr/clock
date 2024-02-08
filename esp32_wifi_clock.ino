@@ -9,14 +9,13 @@
 
 
 const int sensorLight = 36;  // вывод фоторезистора
-const char* ssid = "20_A";   // имя сети WI-FI
+const char* ssid = "XXXX";   // имя сети WI-FI
 const char* password = "XXXXXXXX"; // пароль сети WI-FI
 
 // дисплей 4х1, пин CS на D19, остальные на аппаратный SPI
 MAX7219< 4, 1, 19 > mtrx;
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", 14400, 60000);  // 14400 = UTC+4 Самара
-GKalman adcFilter(40, 40, 0.5);
+NTPClient timeClient(ntpUDP, "ntp1.vniiftri.ru", 14400, 60000);  // 14400 = UTC+4 Самара
 
 int errors = 0;
 int sec = 0;
@@ -45,7 +44,9 @@ void IRAM_ATTR onTimer() {
 }
 
 void setup() {
+  delay(500);
   WiFi.begin(ssid, password);  
+  delay(500);
   mtrx.begin();
   int y0 = 15;
   int y1 = 16;
@@ -55,14 +56,15 @@ void setup() {
     mtrx.update();
     y0--;
     y1++;
-    if (y0 < 0) {
+    if (y0 == 0) {
       y0 = 15;
       y1 = 16;
+      mtrx.clear();
     }
-    delay(50);
+    delay(100);
   }
   displayText("Wi-Fi");
-
+  delay(100);
   Clock_timer = timerBegin(0, 80, true);
   timerAttachInterrupt(Clock_timer, &onTimer, true);
   timerAlarmWrite(Clock_timer, 1000000, true);
@@ -75,11 +77,8 @@ void setup() {
 }
 
 void loop() {
-  int sensorValue = analogRead(sensorLight);   
-  sensorValue = adcFilter.filtered(sensorValue); 
   if (onChange) {    
-    int bright = sensorValue / 273; // 4096/15=273 (12bit/0..15)
-    mtrx.setBright(bright);
+    mtrx.setBright(analogRead(sensorLight) / 273); // 4095/15=273 (12bit/0..15)
     display();
     onChange = false;
   }
